@@ -1,1 +1,3 @@
 azb_tasks.json
+azb_hashes.csv
+*.pyc
