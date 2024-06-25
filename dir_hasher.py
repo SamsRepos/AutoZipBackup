@@ -12,12 +12,12 @@ def sha1_of_file(file_path):
       sha.update(block)
     return sha.hexdigest()
   
-def dir_hash(dir_path):
+def hash_dir(dir_path):
   hashes = []
   for path, dirs, files in os.walk(dir_path):
     for file in sorted(files): # guarantee same order every time
       hashes.append(sha1_of_file(os.path.join(path, file)))
     for dir in sorted(dirs): # guarantee same order every time 
-      hashes.append(dir_hash(os.path.join(path, dir)))
+      hashes.append(hash_dir(os.path.join(path, dir)))
     break # we only need one iteration - to get files and dirs
   return str(hash(''.join(hashes)))

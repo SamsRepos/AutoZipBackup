@@ -5,7 +5,7 @@ import os
 import pandas
 
 from utils import sleep_until, today_string, time_string
-from dir_hash import dir_hash
+from dir_hasher import hash_dir
 
 JSON_FILE_PATH = r".\azb_tasks.json"
 
@@ -48,7 +48,7 @@ def dir_changed(dir_path):
   most_recent_hash = hashes[-1]
   print(f"   - Most recent hash: {most_recent_hash}")
   print(f"   - Hashing now...")
-  current_hash = dir_hash(dir_path)
+  current_hash = hash_dir(dir_path)
   print(f"   - Current hash: {current_hash}")
   if most_recent_hash == current_hash:
     return False
