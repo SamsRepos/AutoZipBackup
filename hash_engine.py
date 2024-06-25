@@ -1,5 +1,7 @@
 import json
+import sqlite3
 from db_connection import create_connection
+from dir_hasher import hash_dir
 
 SETTINGS_FILE_PATH = "./azb_settings.json"
 
@@ -14,7 +16,13 @@ def db_path():
 db = create_connection(db_path())
 
 c = db.cursor()
+c.row_factory = sqlite3.Row
 
-res = c.execute("SELECT * FROM dirs_to_hash")
-
-print(res.fetchall())
+rows = c.execute("SELECT * FROM dirs_to_hash")
+for row in rows:
+  dir_path = row["dir_path"]
+  print(f"Hashing directory at {dir_path}")
+  hash = hash_dir(dir_path)
+  data = ( dir_path, hash )
+  print(f"hash: {hash}")
+  c.execute("INSERT INTO dir_hashes (dir_path, hash) VALUES (?, ?)", data)
