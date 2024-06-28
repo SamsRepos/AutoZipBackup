@@ -2,6 +2,7 @@ import json
 import sqlite3
 from .db_connection import create_connection
 from .dir_hasher import hash_dir
+from .azb_task import AzbTask
 
 SETTINGS_FILE_PATH = "./azb_settings.json"
 
@@ -18,6 +19,8 @@ def db_path():
 
 def run_azb():
 
+  azb_tasks = []
+
   db = create_connection(db_path())
 
   c = db.cursor()
@@ -27,15 +30,17 @@ def run_azb():
 
   i = 0
   for row in rows:
-    id = row["id"]
-    dir_path = row["dir_path"]
-    active = row["active"]
+    id                = row["id"]
+    task_name         = row["task_name"]
+    dir_path          = row["dir_path"]
+    active            = row["active"]
     destination_paths = json.loads(row["destination_paths"])
-    latest_hash = row["latest_hash"]
+    latest_hash       = row["latest_hash"]
 
     log("")
-    log(f"dir {i+1} of {len(rows)}: {dir_path}")
-    log(f"  active: {active != 0}")
+    log(f"Loaded {i+1} of {len(rows)}:")
+    log(f"  task_name: {task_name}")
+    log(f"  active:    {active != 0}")
     if not active:
       log("  Skipping.")
       log("")
@@ -43,8 +48,9 @@ def run_azb():
 
     destination_paths_chained = ", ".join(destination_paths)
 
+    log(f"  dir_path:          {dir_path}") 
     log(f"  destination paths: {destination_paths_chained}")
-    log(f"  latest hash: {latest_hash}")
+    log(f"  latest hash:       {latest_hash}")
 
     log("  Hashing now...")
     current_hash = hash_dir(dir_path)
@@ -55,19 +61,31 @@ def run_azb():
       log("")
       continue
 
-    log("  [TODO: ziping and copying now]")
+    # TODO - check to ensure directories all exist
+    #      - if some output dirs don't exist
+    #          warn and proceed on existing dirs
+    #      - else exclude task
 
     data = ( current_hash, id )
     c.execute("UPDATE dirs SET latest_hash=? WHERE id=?", data)
-    #c.execute(f"UPDATE dirs SET latest_hash='{current_hash}' WHERE id={id}")
     db.commit()
+
+    log(f"  Adding task {task_name} to azb_tasks")
+    task = AzbTask(task_name, dir_path, destination_paths)
+    azb_tasks.append(task)
 
     i += 1
 
-      # from example:
-      # c.execute("INSERT INTO dir_hashes (dir_path, hash) VALUES (?, ?)", data)
-
   c.close()
+
+  log("")
+  log(f"{len(azb_tasks)} of {len(rows)} directories changed")
+  log("Running AZB tasks...")
+  i = 0
+  for task in azb_tasks:
+    log(f"  Running task {i+1} of {len(azb_tasks)} ...")
+    task.run()
+    i += 1
 
 
 
@@ -150,64 +168,6 @@ def run_azb():
 #   data_frame.insert(new_column_pos, dir_path, empties)
 #   write_to_csv(data_frame)
 
-# class AzbTask:
-#   def __init__(self, name, dir_path, zip_destination_paths):
-#     self.name     = name
-#     self.dir_path = dir_path
-#     self.destination_paths = zip_destination_paths
-
-#   def run(self):
-#     print(f"Running azb task: {self.name}")
-
-#     num_destinations = len(self.destination_paths)
-
-#     print(f" - Directory: {self.dir_path}")
-#     # 1. Check if task has been run for this directory before:
-#     if dir_in_history(self.dir_path):
-#       # 2. Check if there have been any changes since last run:  
-#       print(f" - Checking for changes...")
-#       if dir_changed(self.dir_path):
-#         print(f" - Changes found. Proceeding with azb...")
-#       else:
-#         print(f" - No changes found. Exiting task now: {self.name}")
-#         print()
-#         return      
-#     else:
-#       print(f" - Running for the first time on this directory")
-#       add_dir_column(self.dir_path)
-
-#     # 3. Compressing
-#     print(f" - {num_destinations} destination location" + ("s" if num_destinations > 1 else "") + ": ")
-#     for path in self.destination_paths:
-#       print(f"   - {path}")
-
-#     datetime_for_file_name = str(datetime.now()).replace(" ", "-").replace(":", "-")
-#     zip_file_name = f"{self.name}_auto_zip_backup_{datetime_for_file_name}"
-
-#     zipping_destination_path = self.destination_paths[0]
-#     zipping_file_path = os.path.join(zipping_destination_path, zip_file_name)
-#     print(f" - Preparing to create zip at " + ("first" if num_destinations > 1 else "") + f" directory: {zipping_destination_path}")
-#     print(f"   - Zip file name: {zip_file_name}.zip")
-#     print(f"   - Zipping now...")
-#     shutil.make_archive(zipping_file_path, 'zip', self.dir_path, verbose=True)
-#     print(f"   - Zip complete: {zipping_file_path}")
-    
-#     zipped_file_path = zipping_file_path + ".zip"
-
-#     # 4. Copying zip to any other destinations
-#     if num_destinations > 1:
-#       for i in range(len(self.destination_paths)):
-#         if i == 0:
-#           continue
-#         destination_path = self.destination_paths[i]
-#         print(f" - Preparing to copy {zipped_file_path}")
-#         print(f"   - Destination: {destination_path}")
-#         print(f"   - Copying now...")
-#         shutil.copy(zipped_file_path, destination_path)
-#         print(f"   - Copy complete")
-
-#     print(f"Auto zip backup task complete: {self.name}")
-#     print()
 
 
 # def load_azb_tasks():
