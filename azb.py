@@ -9,6 +9,8 @@ for i in range(len(argv)):
 RUN_ONCE_ARG = "run_once"
 RUN_DAILY_ARG = "run_daily"
 RUN_WHEN_DIRS_AVAILABLE_ARG = "run_when_dirs_available"
+CLI_ARG = "cli"
+GUI_ARG = "gui"
 
 VALID_ARGUMENTS = [
   RUN_ONCE_ARG,
@@ -32,4 +34,5 @@ match arg:
   case "run_when_dirs_available":
     pass
 
+print("AZB End.")
 input()

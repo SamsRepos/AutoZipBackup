@@ -1,90 +1,40 @@
-import json
-import sqlite3
-from .db_connection import create_connection
-from .dir_hasher import hash_dir
 from .azb_task import AzbTask
+from .azb_task_factory import create_azb_task
+from .logger import log
 
-SETTINGS_FILE_PATH = "./azb_settings.json"
-
-DB_PATH_KEY = "dbPath"
-
-def log(str):
-  print(str)
-
-def db_path():
-  with open(SETTINGS_FILE_PATH) as json_file:
-    json_data = json.load(json_file)
-    if DB_PATH_KEY in json_data:
-      return json_data[DB_PATH_KEY]
+from .azb_repository import AzbRepository
 
 def run_azb():
 
   azb_tasks = []
 
-  db = create_connection(db_path())
-
-  c = db.cursor()
-  c.row_factory = sqlite3.Row
-
-  rows = c.execute("SELECT * FROM dirs").fetchall()
+  azb_repository = AzbRepository()
+  dir_source_models = azb_repository.get_all_dir_source_models() 
 
   i = 0
-  for row in rows:
-    id                = row["id"]
-    task_name         = row["task_name"]
-    dir_path          = row["dir_path"]
-    active            = row["active"]
-    destination_paths = json.loads(row["destination_paths"])
-    latest_hash       = row["latest_hash"]
-
+  for dir_source_model in dir_source_models:
     log("")
-    log(f"Loaded {i+1} of {len(rows)}:")
-    log(f"  task_name: {task_name}")
-    log(f"  active:    {active != 0}")
-    if not active:
-      log("  Skipping.")
-      log("")
-      continue
-
-    destination_paths_chained = ", ".join(destination_paths)
-
-    log(f"  dir_path:          {dir_path}") 
-    log(f"  destination paths: {destination_paths_chained}")
-    log(f"  latest hash:       {latest_hash}")
-
-    log("  Hashing now...")
-    current_hash = hash_dir(dir_path)
-    log(f"  current hash: {current_hash}")
-    
-    if current_hash == latest_hash:
-      log("  Skipping.")
-      log("")
-      continue
-
-    # TODO - check to ensure directories all exist
-    #      - if some output dirs don't exist
-    #          warn and proceed on existing dirs
-    #      - else exclude task
-
-    data = ( current_hash, id )
-    c.execute("UPDATE dirs SET latest_hash=? WHERE id=?", data)
-    db.commit()
-
-    log(f"  Adding task {task_name} to azb_tasks")
-    task = AzbTask(task_name, dir_path, destination_paths)
-    azb_tasks.append(task)
+    log(f"Profile {i+1} of {len(dir_source_models)}:")
+    task = create_azb_task(dir_source_model)
+    if task:
+      log(f"  Adding task {task.task_name} to azb_tasks")
+      azb_tasks.append(task)
 
     i += 1
 
-  c.close()
+  
+
+  if(len(azb_tasks) < 1):
+    return
 
   log("")
-  log(f"{len(azb_tasks)} of {len(rows)} directories changed")
+  log(f"{len(azb_tasks)} of {len(dir_source_models)} tasks set to run.")
   log("Running AZB tasks...")
   i = 0
   for task in azb_tasks:
     log(f"  Running task {i+1} of {len(azb_tasks)} ...")
     task.run()
+    azb_repository.save_new_hash(task.dir_source_model, task.dir_destination_models, task.source_current_hash)
     i += 1
 
 
