@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 from time import sleep
+import os
 
 def sleep_until(hour, minute):
   today = datetime.today()
@@ -14,3 +15,9 @@ def today_string():
 
 def time_string(hour, minute):
   return "%02d:%02d" % (hour, minute)
+
+def datetime_formatted(dt):
+  return dt.strftime('%H:%M:%S %d/%m/%Y')
+
+def is_directory(path):
+   return os.path.isdir(path)

@@ -58,12 +58,11 @@ class AzbRepository:
 
     i = 0
     for dir_destination_model in dir_destination_models:
-      log(f"Updating source hash for destination dir {i} of {len(dir_destination_models)}: {dir_source_model.dir_path}")
+      i += 1
+      log(f"Updating source hash for destination dir {i} of {len(dir_destination_models)}: {dir_destination_model.dir_path}")
       data = (new_hash, dir_destination_model.id)
       db_cursor.execute("UPDATE dir_destination SET latest_source_hash=? WHERE id=?", data)
       db.commit()
-
-      i += 1
 
     log("")
 

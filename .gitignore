@@ -1,3 +1,4 @@
 azb.db
 azb_settings.json
 *.pyc
+*.log
