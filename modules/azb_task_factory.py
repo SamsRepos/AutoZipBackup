@@ -11,7 +11,7 @@ from .utils import is_directory
 def create_azb_task(dir_source_model):
   log("")
 
-  log(f"  task_name: {dir_source_model.task_name}")
+  log(f"  task name: {dir_source_model.task_name}")
   
   log(f"  source directory path: {dir_source_model.dir_path}")
   if not is_directory(dir_source_model.dir_path):

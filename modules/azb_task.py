@@ -11,7 +11,7 @@ class AzbTask:
     self.source_current_hash    = source_current_hash
     
     self.task_name = dir_source_model.task_name
-    self.dir_path  = dir_source_model.dir_path
+    self.source_path  = dir_source_model.dir_path
     self.destination_paths = [d.dir_path for d in dir_destination_models]
 
   def run(self):
@@ -20,6 +20,7 @@ class AzbTask:
     num_destinations = len(self.destination_paths)
 
     # 3. Compressing
+    log(f"  - source location: {self.source_path}")
     log(f"  - {num_destinations} destination location" + ("s" if num_destinations > 1 else "") + ": ")
     for path in self.destination_paths:
       log(f"    - {path}")
@@ -31,10 +32,10 @@ class AzbTask:
 
     zipping_destination_path = self.destination_paths[0]
     zipping_file_path = os.path.join(zipping_destination_path, zip_file_name)
-    log(f"  - Preparing to create zip at " + ("first" if num_destinations > 1 else "") + f" directory: {zipping_destination_path}")
+    log(f"  - Preparing to create zip at" + (" first" if num_destinations > 1 else "") + f" directory: {zipping_destination_path}")
     log(f"    - Zip file name: {zip_file_name}.zip")
     log(f"    - Zipping now...")
-    shutil.make_archive(zipping_file_path, 'zip', self.dir_path, verbose=True)
+    shutil.make_archive(zipping_file_path, 'zip', self.source_path, verbose=True)
     log(f"    - Zip complete: {zipping_file_path}")
     
     zipped_file_path = zipping_file_path + ".zip"
