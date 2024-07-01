@@ -56,7 +56,7 @@ def create_azb_task(dir_source_model):
       log("    Destination directory is behind.")
     
     if dir_destination_model.latest_source_hash == source_current_hash:
-      log("    Destination directory has already recieved an up-to-date backup. :)")
+      log("    Destination directory has already received an up-to-date backup. :)")
 
     if not is_directory(dir_destination_model.dir_path):
       log("    Directory not found.")
