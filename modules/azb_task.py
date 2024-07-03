@@ -15,7 +15,7 @@ class AzbTask:
     self.destination_paths = [d.dir_path for d in dir_destination_models]
 
   def run(self):
-    log(f"  Zipping and copying now...")
+    log(f"  Running azb_task: {self.task_name}")
 
     num_destinations = len(self.destination_paths)
 
@@ -36,9 +36,8 @@ class AzbTask:
     log(f"    - Zip file name: {zip_file_name}.zip")
     log(f"    - Zipping now...")
     shutil.make_archive(zipping_file_path, 'zip', self.source_path, verbose=True)
-    log(f"    - Zip complete: {zipping_file_path}")
-    
     zipped_file_path = zipping_file_path + ".zip"
+    log(f"    - Zip complete: {zipped_file_path}")
 
     # Copying zip to any other destinations
     if num_destinations > 1:
