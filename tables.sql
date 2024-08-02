@@ -5,7 +5,7 @@ CREATE TABLE "dir_source" (
 	"active"	INTEGER NOT NULL,
 	"latest_hash"	TEXT,
 	PRIMARY KEY("id" AUTOINCREMENT)
-)
+);
 
 
 CREATE TABLE "dir_destination" (
@@ -15,4 +15,7 @@ CREATE TABLE "dir_destination" (
 	"active"	INTEGER NOT NULL,
 	"latest_source_hash"	TEXT,
 	PRIMARY KEY("id" AUTOINCREMENT)
-)
+);
+
+-- sqlite> .open azb.db
+-- sqlite> .read table.sql
