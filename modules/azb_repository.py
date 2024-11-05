@@ -66,3 +66,77 @@ class AzbRepository:
 
     log("")
 
+  def save_dir_source(self, dir_source_model):
+    db_cursor = self.get_db_cursor()
+    
+    if not hasattr(dir_source_model, 'id') or dir_source_model.id is None:
+      data = (
+        dir_source_model.task_name,
+        dir_source_model.dir_path,
+        dir_source_model.task_active,
+        dir_source_model.latest_hash
+      )
+      db_cursor.execute("""
+        INSERT INTO dir_source (task_name, dir_path, active, latest_hash)
+        VALUES (?, ?, ?, ?)
+      """, data)
+      dir_source_model.id = db_cursor.lastrowid
+    else:
+      data = (
+        dir_source_model.task_name,
+        dir_source_model.dir_path,
+        dir_source_model.task_active,
+        dir_source_model.latest_hash,
+        dir_source_model.id
+      )
+      db_cursor.execute("""
+        UPDATE dir_source 
+        SET task_name=?, dir_path=?, active=?, latest_hash=?
+        WHERE id=?
+      """, data)
+
+    self.db.commit()
+    db_cursor.close()
+    return dir_source_model
+
+  def save_dir_destination(self, dir_destination_model):
+    db_cursor = self.get_db_cursor()
+    
+    data = (dir_destination_model.dir_source_id,)
+    source_exists = db_cursor.execute(
+      "SELECT 1 FROM dir_source WHERE id=?", data
+    ).fetchone()
+    
+    if not source_exists:
+      raise ValueError(f"Source directory with id {dir_destination_model.dir_source_id} does not exist")
+
+    if not hasattr(dir_destination_model, 'id') or dir_destination_model.id is None:
+      data = (
+        dir_destination_model.dir_source_id,
+        dir_destination_model.dir_path,
+        dir_destination_model.active,
+        dir_destination_model.latest_source_hash
+      )
+      db_cursor.execute("""
+        INSERT INTO dir_destination (dir_source_id, dir_path, active, latest_source_hash)
+        VALUES (?, ?, ?, ?)
+      """, data)
+      dir_destination_model.id = db_cursor.lastrowid
+    else:
+      data = (
+        dir_destination_model.dir_source_id,
+        dir_destination_model.dir_path,
+        dir_destination_model.active,
+        dir_destination_model.latest_source_hash,
+        dir_destination_model.id
+      )
+      db_cursor.execute("""
+        UPDATE dir_destination 
+        SET dir_source_id=?, dir_path=?, active=?, latest_source_hash=?
+        WHERE id=?
+      """, data)
+
+    self.db.commit()
+    db_cursor.close()
+    return dir_destination_model
+
