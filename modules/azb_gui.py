@@ -16,6 +16,7 @@ class GuiPanel(wx.Panel):
     def __init__(self, parent):
         super().__init__(parent)
         self.repository = AzbRepository()
+        self.item_data = {}
         
         main_sizer = wx.BoxSizer(wx.VERTICAL)
         
@@ -48,9 +49,11 @@ class GuiPanel(wx.Panel):
         
         self.SetSizer(main_sizer)
         self.update_sources_display()
+        self.list_ctrl.Bind(wx.EVT_LIST_ITEM_RIGHT_CLICK, self.on_right_click)
 
     def update_sources_display(self):
         self.list_ctrl.DeleteAllItems()
+        self.item_data.clear()
         
         sources = self.repository.get_all_dir_source_models()
         for source in sources:
@@ -59,6 +62,7 @@ class GuiPanel(wx.Panel):
             self.list_ctrl.SetItem(index, 1, source.dir_path)
             self.list_ctrl.SetItem(index, 2, str(source.task_active))
             self.list_ctrl.SetItem(index, 3, source.latest_hash or "")
+            self.item_data[index] = source
             
             self.list_ctrl.SetItemBackgroundColour(index, wx.Colour(240, 240, 240))
             
@@ -69,6 +73,7 @@ class GuiPanel(wx.Panel):
                 self.list_ctrl.SetItem(dest_index, 1, dest.dir_path)
                 self.list_ctrl.SetItem(dest_index, 2, str(dest.active))
                 self.list_ctrl.SetItem(dest_index, 3, dest.latest_source_hash or "")
+                self.item_data[dest_index] = dest
 
     def on_add_source(self, event):
         dialog = wx.Dialog(self, title="Add Source Directory")
@@ -170,6 +175,98 @@ class GuiPanel(wx.Panel):
 
     def update(self):
         pass
+
+    def on_right_click(self, event):
+        index = event.GetIndex()
+        item = self.item_data.get(index)
+        if not item:
+            return
+        
+        menu = wx.Menu()
+        
+        if isinstance(item, DirSourceModel):
+            # Source directory options
+            edit_name = menu.Append(-1, "Edit Task Name")
+            edit_path = menu.Append(-1, "Edit Source Path")
+            
+            self.Bind(wx.EVT_MENU, 
+                     lambda evt: self.edit_source_name(item), 
+                     edit_name)
+            self.Bind(wx.EVT_MENU, 
+                     lambda evt: self.edit_source_path(item), 
+                     edit_path)
+        else:
+            # Destination directory option
+            edit_path = menu.Append(-1, "Edit Destination Path")
+            self.Bind(wx.EVT_MENU, 
+                     lambda evt: self.edit_destination_path(item), 
+                     edit_path)
+        
+        self.PopupMenu(menu)
+        menu.Destroy()
+
+    def edit_source_name(self, source):
+        dialog = wx.TextEntryDialog(
+            self,
+            "Enter new task name:",
+            "Edit Task Name",
+            source.task_name
+        )
+        
+        if dialog.ShowModal() == wx.ID_OK:
+            try:
+                new_name = dialog.GetValue()
+                self.repository.update_source_task_name(source.id, new_name)
+                self.update_sources_display()
+                wx.MessageBox("Task name updated successfully!", "Success", 
+                            wx.OK | wx.ICON_INFORMATION)
+            except Exception as e:
+                wx.MessageBox(f"Error updating task name: {str(e)}", "Error", 
+                            wx.OK | wx.ICON_ERROR)
+        
+        dialog.Destroy()
+
+    def edit_source_path(self, source):
+        dialog = wx.TextEntryDialog(
+            self,
+            "Enter new source path:",
+            "Edit Source Path",
+            source.dir_path
+        )
+        
+        if dialog.ShowModal() == wx.ID_OK:
+            try:
+                new_path = dialog.GetValue()
+                self.repository.update_source_dir_path(source.id, new_path)
+                self.update_sources_display()
+                wx.MessageBox("Source path updated successfully!", "Success", 
+                            wx.OK | wx.ICON_INFORMATION)
+            except Exception as e:
+                wx.MessageBox(f"Error updating source path: {str(e)}", "Error", 
+                            wx.OK | wx.ICON_ERROR)
+        
+        dialog.Destroy()
+
+    def edit_destination_path(self, destination):
+        dialog = wx.TextEntryDialog(
+            self,
+            "Enter new destination path:",
+            "Edit Destination Path",
+            destination.dir_path
+        )
+        
+        if dialog.ShowModal() == wx.ID_OK:
+            try:
+                new_path = dialog.GetValue()
+                self.repository.update_destination_dir_path(destination.id, new_path)
+                self.update_sources_display()
+                wx.MessageBox("Destination path updated successfully!", "Success", 
+                            wx.OK | wx.ICON_INFORMATION)
+            except Exception as e:
+                wx.MessageBox(f"Error updating destination path: {str(e)}", "Error", 
+                            wx.OK | wx.ICON_ERROR)
+        
+        dialog.Destroy()
 
 class GuiFrame(wx.Frame):
     def __init__(self):

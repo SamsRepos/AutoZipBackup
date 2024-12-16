@@ -140,3 +140,23 @@ class AzbRepository:
     db_cursor.close()
     return dir_destination_model
 
+  def update_source_task_name(self, source_id, new_task_name):
+      db_cursor = self.get_db_cursor()
+      data = (new_task_name, source_id)
+      db_cursor.execute("UPDATE dir_source SET task_name=? WHERE id=?", data)
+      self.db.commit()
+      db_cursor.close()
+
+  def update_source_dir_path(self, source_id, new_dir_path):
+      db_cursor = self.get_db_cursor()
+      data = (new_dir_path, source_id)
+      db_cursor.execute("UPDATE dir_source SET dir_path=? WHERE id=?", data)
+      self.db.commit()
+      db_cursor.close()
+
+  def update_destination_dir_path(self, destination_id, new_dir_path):
+      db_cursor = self.get_db_cursor()
+      data = (new_dir_path, destination_id)
+      db_cursor.execute("UPDATE dir_destination SET dir_path=? WHERE id=?", data)
+      self.db.commit()
+      db_cursor.close()
