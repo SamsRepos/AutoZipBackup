@@ -66,6 +66,11 @@ class GuiPanel(wx.Panel):
             
             self.list_ctrl.SetItemBackgroundColour(index, wx.Colour(240, 240, 240))
             
+            # Set text color based on active status
+            text_color = wx.Colour(160, 160, 160) if not source.task_active else wx.BLACK
+            for col in range(4):
+                self.list_ctrl.SetItemTextColour(index, text_color)
+            
             destinations = self.repository.get_dir_destination_models(source.id)
             for dest in destinations:
                 dest_index = self.list_ctrl.GetItemCount()
@@ -74,6 +79,11 @@ class GuiPanel(wx.Panel):
                 self.list_ctrl.SetItem(dest_index, 2, str(dest.active))
                 self.list_ctrl.SetItem(dest_index, 3, dest.latest_source_hash or "")
                 self.item_data[dest_index] = dest
+                
+                # Set destination text color based on both source and destination active status
+                dest_text_color = wx.Colour(160, 160, 160) if not source.task_active or not dest.active else wx.BLACK
+                for col in range(4):
+                    self.list_ctrl.SetItemTextColour(dest_index, dest_text_color)
 
     def on_add_source(self, event):
         dialog = wx.Dialog(self, title="Add Source Directory")
@@ -188,6 +198,7 @@ class GuiPanel(wx.Panel):
             # Source directory options
             edit_name = menu.Append(-1, "Edit Task Name")
             edit_path = menu.Append(-1, "Edit Source Path")
+            toggle_active = menu.Append(-1, "Deactivate" if item.task_active else "Activate")
             
             self.Bind(wx.EVT_MENU, 
                      lambda evt: self.edit_source_name(item), 
@@ -195,12 +206,20 @@ class GuiPanel(wx.Panel):
             self.Bind(wx.EVT_MENU, 
                      lambda evt: self.edit_source_path(item), 
                      edit_path)
+            self.Bind(wx.EVT_MENU,
+                     lambda evt: self.toggle_source_active(item),
+                     toggle_active)
         else:
-            # Destination directory option
+            # Destination directory options
             edit_path = menu.Append(-1, "Edit Destination Path")
+            toggle_active = menu.Append(-1, "Deactivate" if item.active else "Activate")
+            
             self.Bind(wx.EVT_MENU, 
                      lambda evt: self.edit_destination_path(item), 
                      edit_path)
+            self.Bind(wx.EVT_MENU,
+                     lambda evt: self.toggle_destination_active(item),
+                     toggle_active)
         
         self.PopupMenu(menu)
         menu.Destroy()
@@ -267,6 +286,30 @@ class GuiPanel(wx.Panel):
                             wx.OK | wx.ICON_ERROR)
         
         dialog.Destroy()
+
+    def toggle_source_active(self, source):
+        try:
+            new_status = not source.task_active
+            self.repository.update_source_active_status(source.id, new_status)
+            self.update_sources_display()
+            status_text = "activated" if new_status else "deactivated"
+            wx.MessageBox(f"Task {status_text} successfully!", "Success", 
+                        wx.OK | wx.ICON_INFORMATION)
+        except Exception as e:
+            wx.MessageBox(f"Error updating task status: {str(e)}", "Error", 
+                        wx.OK | wx.ICON_ERROR)
+
+    def toggle_destination_active(self, destination):
+        try:
+            new_status = not destination.active
+            self.repository.update_destination_active_status(destination.id, new_status)
+            self.update_sources_display()
+            status_text = "activated" if new_status else "deactivated"
+            wx.MessageBox(f"Destination {status_text} successfully!", "Success", 
+                        wx.OK | wx.ICON_INFORMATION)
+        except Exception as e:
+            wx.MessageBox(f"Error updating destination status: {str(e)}", "Error", 
+                        wx.OK | wx.ICON_ERROR)
 
 class GuiFrame(wx.Frame):
     def __init__(self):

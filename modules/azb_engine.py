@@ -15,6 +15,12 @@ def run_azb():
   for dir_source_model in dir_source_models:
     log("")
     log(f"Profile {i+1} of {len(dir_source_models)}:")
+
+    if not dir_source_model.task_active:
+      log(f"  Task {dir_source_model.task_name} is not active. Skipping this profile.")
+      log("")
+      continue
+
     task = create_azb_task(dir_source_model)
     if task:
       log(f"  Adding task {task.task_name} to azb_tasks")
