@@ -11,22 +11,19 @@ def run_azb():
   azb_repository = AzbRepository()
   dir_source_models = azb_repository.get_all_dir_source_models() 
 
-  i = 0
-  for dir_source_model in dir_source_models:
+  for i, dir_source_model in enumerate(dir_source_models, start=1):
     log("")
-    log(f"Profile {i+1} of {len(dir_source_models)}:")
+    log(f"Profile {i} of {len(dir_source_models)}:")
 
     if not dir_source_model.task_active:
       log(f"  Task {dir_source_model.task_name} is not active. Skipping this profile.")
-      log("")
+      log("") 
       continue
 
     task = create_azb_task(dir_source_model)
     if task:
       log(f"  Adding task {task.task_name} to azb_tasks")
       azb_tasks.append(task)
-
-    i += 1
 
   
 
