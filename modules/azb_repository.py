@@ -51,7 +51,7 @@ class AzbRepository:
     db_cursor = self.get_db_cursor()
 
     if new_hash != dir_source_model.latest_hash:
-      log(f"Updating hash for source dir {dir_source_model.dir_path}")
+      log(f"  Updating hash for source dir {dir_source_model.dir_path}")
       data = (new_hash, dir_source_model.id)
       db_cursor.execute("UPDATE dir_source SET latest_hash=? WHERE id=?", data)
       db.commit()
@@ -59,7 +59,7 @@ class AzbRepository:
     i = 0
     for dir_destination_model in dir_destination_models:
       i += 1
-      log(f"Updating source hash for destination dir {i} of {len(dir_destination_models)}: {dir_destination_model.dir_path}")
+      log(f"  Updating source hash for destination dir {i} of {len(dir_destination_models)}: {dir_destination_model.dir_path}")
       data = (new_hash, dir_destination_model.id)
       db_cursor.execute("UPDATE dir_destination SET latest_source_hash=? WHERE id=?", data)
       db.commit()

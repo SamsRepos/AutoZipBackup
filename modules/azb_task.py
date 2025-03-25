@@ -51,7 +51,7 @@ class AzbTask:
         shutil.copy(zipped_file_path, destination_path)
         log(f"    - Copy complete")
 
-    log(f"Auto zip backup task complete: {self.task_name}")
+    log(f"  azb_task complete: {self.task_name}")
     log("")
 
   def save_hash(self):

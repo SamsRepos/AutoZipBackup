@@ -35,7 +35,7 @@ def run_azb():
   log("Running AZB tasks...")
   i = 0
   for task in azb_tasks:
-    log(f"  Starting azb_task {i+1} of {len(azb_tasks)}")
+    log(f"Starting azb_task {i+1} of {len(azb_tasks)}")
     task.run()
     azb_repository.save_new_hash(task.dir_source_model, task.dir_destination_models, task.source_current_hash)
     i += 1
