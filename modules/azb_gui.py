@@ -82,6 +82,12 @@ class GuiPanel(wx.Panel):
                 
                 # Set destination text color based on both source and destination active status
                 dest_text_color = wx.Colour(160, 160, 160) if not source.task_active or not dest.active else wx.BLACK
+                row_is_outdated = (dest.latest_source_hash or "") != (source.latest_hash or "")
+                if row_is_outdated:
+                    self.list_ctrl.SetItemBackgroundColour(dest_index, wx.Colour(255, 220, 220))
+                    dest_text_color = wx.Colour(220, 0, 0)
+                else:
+                    self.list_ctrl.SetItemBackgroundColour(dest_index, wx.NullColour)
                 for col in range(4):
                     self.list_ctrl.SetItemTextColour(dest_index, dest_text_color)
 
