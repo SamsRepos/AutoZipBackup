@@ -29,6 +29,19 @@ class AzbRepository:
 
     return res
 
+  def get_all_dir_destination_models(self):
+    db_cursor = self.get_db_cursor()
+    rows = db_cursor.execute("SELECT * FROM dir_destination").fetchall()
+
+    res = []
+
+    for row in rows:
+      res.append(DirDestinationModel(row))
+    
+    db_cursor.close()
+
+    return res
+
   def get_dir_destination_models(self, dir_source_id):
     db_cursor = self.get_db_cursor()
     data = (dir_source_id,)

@@ -4,6 +4,7 @@ from time import sleep
 
 from modules.azb_engine import run_azb
 from modules.azb_gui import run_gui
+from modules.azb_clean import run_clean
 from modules.alert import alert
 
 for i, arg in enumerate(sys.argv):
@@ -13,12 +14,13 @@ class VALID_ARGUMENTS:
   RUN_ONCE                = "run_once"
   CLI                     = "cli"
   GUI                     = "gui"
+  CLEAN                   = "clean"
   NO_SOUND                = "--no-sound"
 
 parser = argparse.ArgumentParser()
 parser.add_argument(
   "mode", 
-  choices=[VALID_ARGUMENTS.RUN_ONCE, VALID_ARGUMENTS.CLI, VALID_ARGUMENTS.GUI]
+  choices=[VALID_ARGUMENTS.RUN_ONCE, VALID_ARGUMENTS.CLI, VALID_ARGUMENTS.GUI, VALID_ARGUMENTS.CLEAN]
 )
 parser.add_argument(
   VALID_ARGUMENTS.NO_SOUND, 
@@ -37,6 +39,8 @@ match arg:
     pass
   case VALID_ARGUMENTS.GUI:
     run_gui()
+  case VALID_ARGUMENTS.CLEAN:
+    run_clean()
   case _:
     raise ValueError(f"invalid argument: {arg}")
 

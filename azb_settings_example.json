@@ -1,3 +1,6 @@
 {
-    "dbPath": "./azb.db"
+    "dbPath": "./azb.db",
+    "clean": {
+        "keepRecentZipsPerDirectory": 5
+    }
 }
