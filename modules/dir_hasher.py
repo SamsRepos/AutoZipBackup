@@ -1,7 +1,10 @@
 import os
 import hashlib
+from .azb_settings import get_azb_settings
 
 # https://stackoverflow.com/questions/36204248/creating-unique-hash-for-directory-in-python
+
+ignore_extensions = set(get_azb_settings().get("ignoreFileExtensions", []))
 
 def sha256_of_string(str):
   sha = hashlib.new('sha256')
@@ -21,6 +24,8 @@ def hash_dir(dir_path):
   hashes = []
   for path, dirs, files in os.walk(dir_path):
     for file in sorted(files): # guarantee same order every time
+      if os.path.splitext(file)[1].lower() in ignore_extensions:
+        continue
       hashes.append(sha256_of_file(os.path.join(path, file)))
     for dir in sorted(dirs): # guarantee same order every time 
       hashes.append(hash_dir(os.path.join(path, dir)))

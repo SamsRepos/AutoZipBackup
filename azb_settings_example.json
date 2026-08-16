@@ -1,5 +1,15 @@
 {
     "dbPath": "./azb.db",
+    "ignoreFileExtensions": [
+      ".gdoc",
+      ".gsheet",
+      ".gslides",
+      ".gdraw",
+      ".gform",
+      ".gmap",
+      ".gsite",
+      ".gtable"
+    ],
     "clean": {
         "keepRecentZipsPerDirectory": 5
     }
