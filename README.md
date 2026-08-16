@@ -5,16 +5,20 @@ A Python tool that checks source directories for changes and creates zip backups
 ## Getting Started
 
 1. Install dependencies
+   
    `pip install -r requirements.txt`
 
 2. Configure settings
+   
    Copy `azb_settings_example.json` to `azb_settings.json` and edit as needed.
 
 3. Initialise the database
+   
    Run once to create the required tables in `azb.db`:
    `python azb.py init_db`
 
 4. Configure directories
+   
    Run the GUI to add source and destination directories:
    `python azb.py gui`
 
