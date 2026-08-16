@@ -217,9 +217,13 @@ class GuiPanel(wx.Panel):
                      toggle_active)
         else:
             # Destination directory options
+            change_source = menu.Append(-1, "Change Source Directory")
             edit_path = menu.Append(-1, "Edit Destination Path")
             toggle_active = menu.Append(-1, "Deactivate" if item.active else "Activate")
-            
+
+            self.Bind(wx.EVT_MENU,
+                      lambda evt: self.change_destination_source(item),
+                      change_source)
             self.Bind(wx.EVT_MENU, 
                      lambda evt: self.edit_destination_path(item), 
                      edit_path)
@@ -270,6 +274,65 @@ class GuiPanel(wx.Panel):
                 wx.MessageBox(f"Error updating source path: {str(e)}", "Error", 
                             wx.OK | wx.ICON_ERROR)
         
+        dialog.Destroy()
+
+    def change_destination_source(self, destination):
+        sources = self.repository.get_all_dir_source_models()
+        if not sources:
+            wx.MessageBox(
+                "No source directories available",
+                "Error",
+                wx.OK | wx.ICON_ERROR
+            )
+            return
+
+        dialog = wx.Dialog(self, title="Change Source Directory")
+        dialog_sizer = wx.BoxSizer(wx.VERTICAL)
+
+        source_label = wx.StaticText(dialog, label="Select Source:")
+        dialog_sizer.Add(source_label, 0, wx.ALL, 5)
+        source_choices = [f"{s.task_name} ({s.dir_path})" for s in sources]
+        source_combo = wx.ComboBox(
+            dialog, 
+            choices=source_choices,
+            style=wx.CB_DROPDOWN|wx.CB_READONLY
+        )
+
+        # Pre-select destination's current source:
+        current_index = next((i for i, s in enumerate(sources) if s.id == destination.dir_source_id), 0)
+        source_combo.SetSelection(current_index)
+        dialog_sizer.Add(source_combo, 0, wx.EXPAND|wx.ALL, 5)
+
+        button_sizer = wx.BoxSizer(wx.HORIZONTAL)
+        ok_button = wx.Button(dialog, wx.ID_OK, "Save")
+        cancel_button = wx.Button(dialog, wx.ID_CANCEL, "Cancel")
+        button_sizer.Add(ok_button, 0, wx.ALL, 5)
+        button_sizer.Add(cancel_button, 0, wx.ALL, 5)
+        dialog_sizer.Add(button_sizer, 0, wx.ALIGN_CENTER|wx.ALL, 5)
+
+        dialog.SetSizer(dialog_sizer)
+        dialog.Fit()
+
+        if dialog.ShowModal() == wx.ID_OK:
+            try:
+                selected_source = sources[source_combo.GetSelection()]
+                self.repository.update_destination_source(
+                    destination.id,
+                    selected_source.id
+                )
+                self.update_sources_display()
+                wx.MessageBox(
+                    "Source directory updated successfully!",
+                    "Success",
+                    wx.OK | wx.ICON_INFORMATION
+                )
+            except Exception as e: 
+                wx.MessageBox(
+                    f"Error updating source: {str(e)}",
+                    "Error",
+                    wx.OK | wx.ICON_ERROR
+                )
+
         dialog.Destroy()
 
     def edit_destination_path(self, destination):

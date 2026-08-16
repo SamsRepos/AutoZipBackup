@@ -187,3 +187,13 @@ class AzbRepository:
     db_cursor.execute("UPDATE dir_destination SET active=? WHERE id=?", data)
     self.db.commit()
     db_cursor.close()
+
+  def update_destination_source(self, destination_id, new_source_id):
+    db_cursor = self.get_db_cursor()
+    data = (new_source_id, destination_id)
+    db_cursor.execute(
+      "UPDATE dir_destination SET dir_source_id=? WHERE id=?",
+      data
+    )
+    self.db.commit()
+    db_cursor.close()
