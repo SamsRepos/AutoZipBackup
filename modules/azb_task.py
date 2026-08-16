@@ -73,12 +73,3 @@ class AzbTask:
 
     log(f"  azb_task complete: {self.task_name}")
     log("")
-
-  def save_hash(self):
-    
-    self.dir_source_model.latest_hash = self.source_current_hash
-    self.dir_source_model.save()
-
-    for dir_destination_model in self.dir_destination_models:
-      dir_destination_model.latest_source_hash = self.source_current_hash
-      dir_destination_model.save()
