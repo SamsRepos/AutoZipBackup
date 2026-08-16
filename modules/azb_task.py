@@ -1,6 +1,8 @@
 from datetime import datetime
 import os
 import shutil
+import zipfile
+from .azb_settings import get_azb_settings
 
 from .logger import log
 
@@ -26,18 +28,36 @@ class AzbTask:
       log(f"    - {path}")
 
     datetime_for_file_name = str(datetime.now()).replace(" ", "-").replace(":", "-")
-    zip_file_name = f"{self.task_name}_azb_{datetime_for_file_name}"
+    zip_file_name = f"{self.task_name}_azb_{datetime_for_file_name}.zip"
 
     # Compressing to first destination
-
     zipping_destination_path = self.destination_paths[0]
-    zipping_file_path = os.path.join(zipping_destination_path, zip_file_name)
+    zip_file_path = os.path.join(zipping_destination_path, zip_file_name)
     log(f"  - Preparing to create zip at" + (" first" if num_destinations > 1 else "") + f" directory: {zipping_destination_path}")
-    log(f"    - Zip file name: {zip_file_name}.zip")
+    log(f"    - Zip file name: {zip_file_name}")
     log(f"    - Zipping now...")
-    shutil.make_archive(zipping_file_path, 'zip', self.source_path, verbose=True)
-    zipped_file_path = zipping_file_path + ".zip"
-    log(f"    - Zip complete: {zipped_file_path}")
+
+    ignore_extensions = set(get_azb_settings().get("ignoreFileExtensions", []))
+    with zipfile.ZipFile(
+      file=zip_file_path,
+      mode='w',
+      compression=zipfile.ZIP_DEFLATED
+    ) as zf:
+      for root, dirs, files in os.walk(self.source_path):
+        for file in files:
+          if os.path.splitext(file)[1].lower() in ignore_extensions:
+            continue
+          file_path = os.path.join(root, file)
+          arcname = os.path.relpath(
+            path=file_path,
+            start=self.source_path
+          )
+          zf.write(
+            filename=file_path,
+            arcname=arcname
+          )
+
+    log(f"    - Zip complete: {zip_file_path}")
 
     # Copying zip to any other destinations
     if num_destinations > 1:
@@ -45,10 +65,10 @@ class AzbTask:
         if i == 0:
           continue
         destination_path = self.destination_paths[i]
-        log(f"  - Preparing to copy {zipped_file_path}")
+        log(f"  - Preparing to copy {zip_file_path}")
         log(f"    - Destination: {destination_path}")
         log(f"    - Copying now...")
-        shutil.copy(zipped_file_path, destination_path)
+        shutil.copy(zip_file_path, destination_path)
         log(f"    - Copy complete")
 
     log(f"  azb_task complete: {self.task_name}")
