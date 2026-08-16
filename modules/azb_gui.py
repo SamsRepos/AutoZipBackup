@@ -148,7 +148,24 @@ class GuiPanel(wx.Panel):
         dialog_sizer.Add(source_label, 0, wx.ALL, 5)
         source_choices = [f"{s.task_name} ({s.dir_path})" for s in sources]
         source_combo = wx.ComboBox(dialog, choices=source_choices, style=wx.CB_DROPDOWN|wx.CB_READONLY)
-        source_combo.SetSelection(0)
+
+        default_index = 0
+        selected_row_index = self.list_ctrl.GetFirstSelected()
+        if selected_row_index != -1:
+            selected_item = self.item_data.get(selected_row_index)
+            if isinstance(selected_item, DirSourceModel):
+                default_index = next(
+                    (i for i, s in enumerate(sources) if s.id == selected_item.id), 
+                    0
+                )
+            elif isinstance(selected_item, DirDestinationModel):
+                default_index = next(
+                    (i for i, s in enumerate(sources) if s.id == selected_item.dir_source_id),
+                    0
+                )
+
+        source_combo.SetSelection(default_index)
+
         dialog_sizer.Add(source_combo, 0, wx.EXPAND|wx.ALL, 5)
 
         dir_label = wx.StaticText(dialog, label="Destination Path:")
