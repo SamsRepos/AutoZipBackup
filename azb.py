@@ -6,6 +6,7 @@ from modules.azb_engine import run_azb
 from modules.azb_gui import run_gui
 from modules.azb_clean import run_clean
 from modules.alert import alert
+from modules.initialise_db import initialise_db
 
 for i, arg in enumerate(sys.argv):
     print(f"Arg #{i}: {arg}")
@@ -15,12 +16,13 @@ class VALID_ARGUMENTS:
   CLI                     = "cli"
   GUI                     = "gui"
   CLEAN                   = "clean"
+  INIT_DB                 = "init_db"
   NO_SOUND                = "--no-sound"
 
 parser = argparse.ArgumentParser()
 parser.add_argument(
   "mode", 
-  choices=[VALID_ARGUMENTS.RUN_ONCE, VALID_ARGUMENTS.CLI, VALID_ARGUMENTS.GUI, VALID_ARGUMENTS.CLEAN]
+  choices=[VALID_ARGUMENTS.RUN_ONCE, VALID_ARGUMENTS.CLI, VALID_ARGUMENTS.GUI, VALID_ARGUMENTS.CLEAN, VALID_ARGUMENTS.INIT_DB]
 )
 parser.add_argument(
   VALID_ARGUMENTS.NO_SOUND, 
@@ -41,6 +43,8 @@ match arg:
     run_gui()
   case VALID_ARGUMENTS.CLEAN:
     run_clean()
+  case VALID_ARGUMENTS.INIT_DB:
+    initialise_db()
   case _:
     raise ValueError(f"invalid argument: {arg}")
 

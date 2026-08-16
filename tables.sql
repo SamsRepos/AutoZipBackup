@@ -1,4 +1,4 @@
-CREATE TABLE "dir_source" (
+CREATE TABLE IF NOT EXISTS "dir_source" (
 	"id"	INTEGER NOT NULL,
 	"task_name"	TEXT NOT NULL,
 	"dir_path"	TEXT NOT NULL,
@@ -8,7 +8,7 @@ CREATE TABLE "dir_source" (
 );
 
 
-CREATE TABLE "dir_destination" (
+CREATE TABLE IF NOT EXISTS "dir_destination" (
 	"id"	INTEGER NOT NULL UNIQUE,
 	"dir_source_id"	INTEGER NOT NULL,
 	"dir_path"	TEXT NOT NULL,
@@ -18,4 +18,4 @@ CREATE TABLE "dir_destination" (
 );
 
 -- sqlite> .open azb.db
--- sqlite> .read table.sql
+-- sqlite> .read tables.sql
