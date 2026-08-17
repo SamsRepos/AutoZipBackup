@@ -12,17 +12,16 @@ for i, arg in enumerate(sys.argv):
     print(f"Arg #{i}: {arg}")
 
 class VALID_ARGUMENTS:
-  RUN_ONCE                = "run_once"
-  CLI                     = "cli"
-  GUI                     = "gui"
-  CLEAN                   = "clean"
-  INIT_DB                 = "init_db"
-  NO_SOUND                = "--no-sound"
+  RUN_ONCE = "run_once"
+  GUI      = "gui"
+  CLEAN    = "clean"
+  INIT_DB  = "init_db"
+  NO_SOUND = "--no-sound"
 
 parser = argparse.ArgumentParser()
 parser.add_argument(
   "mode", 
-  choices=[VALID_ARGUMENTS.RUN_ONCE, VALID_ARGUMENTS.CLI, VALID_ARGUMENTS.GUI, VALID_ARGUMENTS.CLEAN, VALID_ARGUMENTS.INIT_DB]
+  choices=[VALID_ARGUMENTS.RUN_ONCE, VALID_ARGUMENTS.GUI, VALID_ARGUMENTS.CLEAN, VALID_ARGUMENTS.INIT_DB]
 )
 parser.add_argument(
   VALID_ARGUMENTS.NO_SOUND, 
@@ -37,8 +36,6 @@ arg = args.mode
 match arg:
   case VALID_ARGUMENTS.RUN_ONCE:
     run_azb()
-  case VALID_ARGUMENTS.CLI:
-    pass
   case VALID_ARGUMENTS.GUI:
     run_gui()
   case VALID_ARGUMENTS.CLEAN:
