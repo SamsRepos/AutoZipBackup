@@ -21,7 +21,6 @@ class AzbTask:
 
     num_destinations = len(self.destination_paths)
 
-    # 3. Compressing
     log(f"  - source location: {self.source_path}")
     log(f"  - {num_destinations} destination location" + ("s" if num_destinations > 1 else "") + ": ")
     for path in self.destination_paths:

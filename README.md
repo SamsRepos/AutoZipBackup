@@ -10,7 +10,7 @@ A Python tool that checks source directories for changes and creates zip backups
 
 2. Configure settings
    
-   Copy `azb_settings_example.json` to `azb_settings.json` and edit as needed.
+   Copy `azb_settings_example.json` to `azb_settings.json` and edit as needed
 
 3. Initialise the database
    
